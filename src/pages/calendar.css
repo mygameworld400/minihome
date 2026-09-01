@@ -46,3 +46,40 @@
   .cal-cell .d { font-size: 13px; }
   .cal-cell .marks i { width: 5px; height: 5px; }
 }
+/* ── 달력 날짜 칸 안 일정 ─────────────────────────────── */
+
+.cal-cell {
+  position: relative;
+}
+
+.cal-events {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 7px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+
+  overflow: hidden;
+}
+
+.cal-event {
+  width: 100%;
+  min-width: 0;
+
+  padding: 1px 3px;
+
+  border-left: 2px solid;
+  border-radius: 2px;
+  background: rgba(255, 250, 243, 0.85);
+
+  font-size: 9px;
+  line-height: 1.25;
+  text-align: left;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
