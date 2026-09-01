@@ -4,10 +4,10 @@
   padding: 20px;
 }
 .login-card {
-  width: min(360px, 100%);
+  width: min(340px, 100%);
   text-align: center;
   border-color: var(--pink-dp);
-  padding: 26px 22px;
+  padding: 28px 24px 22px;
 }
 .login-logo {
   font-size: 46px; line-height: 1;
@@ -22,3 +22,26 @@
   font-family: var(--font-pix); font-size: 12px;
   background: var(--cream); padding: 1px 5px; border-radius: 4px;
 }
+
+/* 입장코드 입력칸 — 가운데 정렬, 넉넉한 자간 */
+.code-input {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 20px;
+  letter-spacing: 0.35em;
+  padding: 12px;
+  border-width: 2px;
+  border-color: var(--line-dp);
+}
+.code-input::placeholder { letter-spacing: 0.2em; color: var(--ink-fade); }
+.code-input:focus { border-color: var(--pink-dp); }
+
+/* 코드 틀렸을 때 흔들림 */
+@keyframes shake-x {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+.login-card.shake { animation: shake-x 0.45s ease; }

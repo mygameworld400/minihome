@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useStore } from '../hooks/useStore'
-import { useAuth } from '../hooks/useAuth'
+import { ACCOUNT_EMAIL } from '../hooks/useAuth'
 import Modal, { Confirm } from '../components/common/Modal'
 
 const AVATARS = ['🐰', '🐻', '🐼', '🐨', '🐤', '🐱', '🐶', '🦊', '🐧', '☁️', '🌷', '⭐']
@@ -13,7 +13,6 @@ export default function Settings() {
     tracks, addTrack, editTrack, removeTrack,
     people, addPerson, editPerson, removePerson,
   } = useStore()
-  const { user } = useAuth()
 
   const [p, setP] = useState({
     nickname: profile?.nickname ?? '',
@@ -107,9 +106,11 @@ export default function Settings() {
       </section>
 
       <section className="card" style={{ marginTop: 14 }}>
-        <h2 className="card-title">🔐 계정</h2>
+        <h2 className="card-title">🔐 입장코드</h2>
         <p className="tiny muted" style={{ margin: 0 }}>
-          로그인 계정: {user?.email}
+          입장코드는 Supabase 대시보드 → Authentication → Users 에서
+          <code> {ACCOUNT_EMAIL} </code> 계정의 비밀번호를 바꾸면 변경됩니다.
+          코드는 이 사이트 코드 어디에도 저장돼 있지 않아요.
         </p>
       </section>
 

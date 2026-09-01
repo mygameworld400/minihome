@@ -1,13 +1,17 @@
 -- ===========================================================
 --  MINI HOME — 초기 데이터
---  schema.sql 을 먼저 실행한 뒤, 로그인할 계정으로 회원가입까지
---  마친 다음 SQL Editor 에서 실행한다.
 --
---  아래 v_owner 에 본인 auth 사용자 UUID 가 자동으로 들어간다.
---  (Supabase SQL Editor 는 서비스 권한으로 도므로 auth.uid() 가
---   비어 있다. 그래서 이메일로 찾아서 넣는다.)
+--  실행 순서
+--    1) schema.sql 실행
+--    2) Authentication → Users → Add user 로 계정 하나 생성
+--         Email    : minihome@minihome.local
+--         Password : 입장코드 (사이트에서 입력할 코드)
+--         ✅ Auto Confirm User 체크
+--    3) 이 파일 실행
 --
---  ▸ 아래 'you@example.com' 을 본인 로그인 이메일로 바꾼 뒤 실행!
+--  이 계정의 비밀번호가 곧 입장코드다. 나중에 코드를 바꾸려면
+--  같은 화면에서 비밀번호만 바꾸면 된다. 코드는 앱 코드 어디에도
+--  저장돼 있지 않다.
 -- ===========================================================
 do $$
 declare
@@ -16,9 +20,9 @@ declare
   v_prev bigint;
   v_cat bigint;
 begin
-  select id into v_owner from auth.users where email = 'you@example.com';
+  select id into v_owner from auth.users where email = 'minihome@minihome.local';
   if v_owner is null then
-    raise exception '해당 이메일의 사용자가 없습니다. 먼저 사이트에서 회원가입 후 실행하세요.';
+    raise exception '계정이 없습니다. Authentication → Users 에서 minihome@minihome.local 를 먼저 만들어 주세요 (Auto Confirm User 체크).';
   end if;
 
   -- 이미 넣었으면 건너뛴다

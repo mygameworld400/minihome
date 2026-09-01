@@ -42,6 +42,29 @@
 선행 업무를 완료하면 다음 업무가 **자동으로 활성화**됩니다.
 순환 참조(A→B→A)는 선택지에서 자동으로 걸러집니다.
 
+### 입장코드
+
+아이디·비밀번호 대신 **입장코드 하나**로 들어갑니다.
+
+```
+┌─────────────────┐
+│       🏠        │
+│   MINI HOME     │
+│ 입장코드를 입력  │
+│  · · · · · · ·  │
+│   [ 들어가기 ]   │
+└─────────────────┘
+```
+
+코드는 **앱 코드 어디에도 저장돼 있지 않습니다.** 고정 계정
+(`minihome@minihome.local`)의 비밀번호로 두고, 검증은 Supabase 서버에서
+일어납니다. 프론트에서 `code === '...'` 로 비교하면 번들에 코드가 그대로
+들어가고, publishable 키까지 같이 노출돼 누구나 REST API로 DB를 읽을 수
+있게 되기 때문입니다.
+
+코드를 바꾸려면 **Authentication → Users** 에서 그 계정의 비밀번호만 바꾸면
+됩니다. 배포를 다시 할 필요가 없습니다.
+
 ### 상태 표기
 
 | 기존 방식 | 사이트 |
@@ -87,13 +110,20 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 
 ### 2. DB 만들기
 
-Supabase 대시보드 → **SQL Editor** 에서 순서대로 실행합니다.
+**1) 스키마** — Supabase 대시보드 → **SQL Editor** 에서 `supabase/schema.sql` 실행
+(테이블 · 트리거 · RLS 정책)
 
-1. `supabase/schema.sql` — 테이블 · 트리거 · RLS 정책
-2. 사이트를 켜서 **회원가입** (이메일 + 비밀번호)
-3. `supabase/seed.sql` — 안의 `you@example.com` 을 **가입한 이메일로 바꾼 뒤** 실행
+**2) 입장 계정** — **Authentication → Users → Add user**
 
-3번을 실행하면 트랙 10개와 예시 업무, 담당자 5명, 개인보드 카테고리가 들어갑니다.
+| 항목 | 값 |
+|---|---|
+| Email | `minihome@minihome.local` |
+| Password | **입장코드** (사이트에서 입력할 코드) |
+| Auto Confirm User | ✅ 체크 |
+
+**3) 초기 데이터** — SQL Editor 에서 `supabase/seed.sql` 실행
+
+트랙 10개, 예시 업무, 담당자 5명, 개인보드 카테고리가 들어갑니다.
 
 > 기존 프로젝트와 같은 Supabase를 써도 됩니다.
 > 이 앱의 테이블은 전부 `mh_` 접두사라 다른 테이블과 충돌하지 않습니다.
