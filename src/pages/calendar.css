@@ -1,0 +1,48 @@
+.cal { padding: 12px; }
+
+.cal-week, .cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-wd {
+  text-align: center; padding: 4px 0 6px;
+  font-size: 13px; font-weight: 700; color: var(--ink-soft);
+}
+.cal-wd.sun { color: var(--dang); }
+.cal-wd.sat { color: var(--info); }
+
+.cal-cell {
+  aspect-ratio: 1 / 0.85;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 5px 2px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: border-color 0.12s, background 0.12s, transform 0.12s;
+}
+.cal-cell:hover { border-color: var(--pink-dp); transform: translateY(-1px); }
+.cal-cell.out { opacity: 0.38; }
+.cal-cell.today { background: var(--lemon); border-color: var(--lemon-dp); }
+.cal-cell.picked { border-color: var(--pink-dp); background: var(--pink); }
+
+.cal-cell .d { font-size: 15px; font-weight: 700; }
+.cal-cell .d.sun { color: var(--dang); }
+.cal-cell .d.sat { color: var(--info); }
+
+.cal-cell .marks {
+  display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; align-items: center;
+}
+.cal-cell .marks i {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.cal-cell .marks em {
+  font-style: normal; font-size: 10px; color: var(--ink-soft);
+}
+
+@media (max-width: 860px) {
+  .cal-cell { aspect-ratio: 1 / 1; padding: 3px 1px; }
+  .cal-cell .d { font-size: 13px; }
+  .cal-cell .marks i { width: 5px; height: 5px; }
+}

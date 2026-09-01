@@ -1,0 +1,91 @@
+/* ── 필터 바 ──────────────────────────────────────────────── */
+.filters {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 14px;
+  padding: 12px;
+}
+.filters .input { flex: 1 1 200px; min-width: 160px; }
+.filters .select { flex: 0 1 150px; }
+.chk-inline {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 15px; color: var(--ink-soft); white-space: nowrap;
+}
+.chk-inline input { width: 16px; height: 16px; accent-color: var(--pink-dp); }
+
+/* ── 보드 ─────────────────────────────────────────────────── */
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.track { padding: 12px; border-width: 2px; }
+.track-head {
+  margin: -12px -12px 10px;
+  padding: 10px 14px;
+  border-radius: 12px 12px 0 0;
+  background: var(--cream);
+  font-size: 17px;
+}
+.track-desc { margin: -4px 0 8px; }
+
+/* ── 업무 카드 ────────────────────────────────────────────── */
+.task-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+
+.task-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 9px; align-items: start;
+  padding: 9px 10px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--r-sm);
+  cursor: grab;
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.12s;
+}
+.task-card:hover {
+  border-color: var(--pink-dp);
+  box-shadow: 0 2px 0 var(--line-dp);
+  transform: translateY(-1px);
+}
+.task-card:active { cursor: grabbing; }
+
+.task-card.is-done { background: #fbfff9; border-color: var(--mint-dp); }
+.task-card.is-done .tc-title { color: var(--ink-soft); text-decoration: line-through; }
+
+.task-card.is-locked { background: #faf8fb; border-style: dashed; opacity: 0.82; }
+.task-card.is-locked .tc-title { color: var(--ink-soft); }
+
+.tc-body { min-width: 0; }
+.tc-title { font-size: 16px; font-weight: 700; word-break: break-word; line-height: 1.35; }
+.tc-meta { margin-top: 5px; gap: 5px; }
+.tc-meta .badge { font-size: 12px; padding: 1px 7px; }
+.tc-meta .due.today { background: var(--lemon); border-color: var(--lemon-dp); }
+.tc-meta .due.soon  { background: #fff0e0; border-color: #ffcb96; }
+.tc-meta .due.over  { background: #ffe6ea; border-color: #f3c2cc; color: #b8455c; }
+.tc-meta .lock { background: #f0ecf5; border-color: #d9cfe4; color: #7a6b8a; }
+
+.tc-memo {
+  margin: 6px 0 0; padding: 5px 8px;
+  background: var(--lemon); border-radius: 6px;
+  font-size: 13px; color: #7a6a3a; word-break: break-word;
+}
+
+.tc-actions { display: flex; flex-direction: column; gap: 2px; }
+.tc-actions .btn { padding: 2px 6px; font-size: 13px; line-height: 1.3; }
+
+/* ── 빠른 추가 ────────────────────────────────────────────── */
+.quick { margin-top: 8px; }
+.quick .input { border-style: dashed; border-color: var(--pink-dp); }
+.add-btn {
+  width: 100%; margin-top: 8px;
+  border: 2px dashed var(--line-dp);
+  color: var(--ink-soft);
+}
+.add-btn:hover { border-color: var(--pink-dp); color: var(--ink); }
+
+@media (max-width: 860px) {
+  .board { grid-template-columns: 1fr; }
+  .filters .select { flex: 1 1 46%; }
+}
