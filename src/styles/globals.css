@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Yoontaeng';
+  src: url('../../yoontaeng.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ===========================================================
    MINI HOME — 디자인 토큰 & 공통 스타일
    2000년대 미니홈피 감성 + 파스텔 + 도트 포인트
@@ -36,7 +44,7 @@
   --shadow:    0 2px 0 var(--line-dp);
   --shadow-lg: 0 4px 14px rgba(120, 100, 130, 0.12);
 
-  --font: 'Gaegu', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font: 'Yoontaeng', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
   --font-pix: 'Galmuri11', 'Gaegu', monospace;
 
   --sidebar-w: 232px;
