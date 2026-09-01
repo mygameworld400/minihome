@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC:wght@400&family=Nanum+Gothic+Coding:wght@400&display=swap');
+
 @font-face {
   font-family: 'Yoontaeng';
   src: url('./yoontaeng.ttf') format('truetype');
@@ -44,7 +46,7 @@
   --shadow:    0 2px 0 var(--line-dp);
   --shadow-lg: 0 4px 14px rgba(120, 100, 130, 0.12);
 
-  --font: 'Yoontaeng', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font: 'Yoontaeng', sans-serif;
   --font-pix: 'Galmuri11', 'Gaegu', monospace;
 
   --sidebar-w: 232px;
@@ -278,4 +280,134 @@ a { color: inherit; text-decoration: none; }
 .input.amount {
   width: 88px; flex: none;
   padding: 3px 8px; font-size: 14px; text-align: right;
+}
+
+/* ── 빠른 설정 ───────────────────────────────────────────── */
+
+.quick-settings {
+  position: fixed;
+  top: 16px;
+  right: 18px;
+  z-index: 40;
+}
+
+.quick-settings-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  border: 2px solid var(--line-dp);
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+
+  font-size: 19px;
+  cursor: pointer;
+
+  transition:
+    transform 0.12s,
+    box-shadow 0.12s,
+    background 0.12s;
+}
+
+.quick-settings-btn:hover {
+  transform: rotate(15deg) translateY(-1px);
+  box-shadow: 0 3px 0 var(--line-dp);
+  background: var(--cream);
+}
+
+.quick-settings-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* 폰트 선택 메뉴 */
+.font-menu {
+  position: absolute;
+  top: 48px;
+  right: 0;
+
+  width: 230px;
+  padding: 14px;
+
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+
+  animation: pop-in 0.15s ease both;
+}
+
+.font-menu-title {
+  margin-bottom: 3px;
+  font-size: 17px;
+}
+
+.font-menu-current {
+  margin-bottom: 10px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.font-options {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.font-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 8px 9px;
+
+  border: 1.5px solid transparent;
+  border-radius: var(--r-sm);
+  background: transparent;
+
+  text-align: left;
+  font-size: 15px;
+
+  cursor: pointer;
+}
+
+.font-option:hover {
+  background: var(--cream);
+  border-color: var(--line);
+}
+
+.font-option.active {
+  background: var(--pink);
+  border-color: var(--pink-dp);
+}
+
+.font-option-check {
+  width: 16px;
+  flex: none;
+  text-align: center;
+}
+
+/* 모바일 */
+@media (max-width: 860px) {
+  .quick-settings {
+    top: 10px;
+    right: 12px;
+  }
+
+  .quick-settings-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 17px;
+  }
+
+  .font-menu {
+    top: 44px;
+    right: 0;
+    width: 215px;
+  }
 }
