@@ -43,9 +43,6 @@ export default function TaskCard({
         <div className="tc-title">{task.title}</div>
 
         <div className="row-wrap tc-meta">
-          <span className="badge" style={{ borderColor: st.color, color: st.color }}>
-            {st.mark} {st.label}
-          </span>
 
           {task.priority !== 'normal' && (
             <span className="badge" style={{ borderColor: pr.color, color: pr.color }}>
