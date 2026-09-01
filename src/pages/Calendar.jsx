@@ -78,19 +78,24 @@ export default function Calendar() {
                 <span className={'d' + (wd === 0 ? ' sun' : wd === 6 ? ' sat' : '')}>
                   {c.date.getDate()}
                 </span>
-                <span className="marks">
-                  {items.slice(0, 3).map((it, i) => (
-                    <i
-                      key={i}
-                      style={{
-                        background: it.kind === 'event'
-                          ? EVENT_TYPES[it.row.event_type]?.color ?? '#ddd'
-                          : trackById.get(it.row.track_id)?.color ?? '#e0d4de',
-                      }}
-                    />
-                  ))}
-                  {items.length > 3 && <em>+{items.length - 3}</em>}
-                </span>
+                <div className="cal-events">
+                 {items
+                   .filter((it) => it.kind === 'event')
+                     .slice(0, 3)
+                   .map((it) => (
+                     <div
+                       key={it.row.id}
+                       className="cal-event"
+                       title={it.row.title}
+                       style={{
+                         borderLeftColor:
+                           EVENT_TYPES[it.row.event_type]?.color ?? '#ddd',
+                       }}
+                     >
+                       {it.row.title}
+                     </div>
+                   ))}
+                </div>
               </button>
             )
           })}
