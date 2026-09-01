@@ -1,0 +1,120 @@
+/* ── 잔고 + 그래프 상단 ───────────────────────────────────── */
+.money-top {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) 1.15fr;
+  gap: 18px; align-items: center;
+  background: linear-gradient(120deg, var(--mint) 0%, var(--paper) 62%);
+  border-color: var(--mint-dp);
+}
+
+.balance { text-align: center; }
+.balance-num {
+  font-size: 42px; font-weight: 700; line-height: 1.15;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
+}
+.balance-num em { font-size: 22px; font-style: normal; margin-left: 3px; }
+.balance-num.minus { color: var(--dang); }
+
+.badge.in  { background: var(--mint);  border-color: var(--mint-dp); }
+.badge.out { background: #ffe6ea;      border-color: #f3c2cc; }
+
+/* ── 도넛 ─────────────────────────────────────────────────── */
+.chart-row {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; justify-content: center;
+}
+.donut { position: relative; flex: none; }
+.donut-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; pointer-events: none;
+}
+.donut-center b { font-size: 19px; line-height: 1.1; }
+.donut-center span { font-size: 12px; color: var(--ink-soft); }
+
+.legend { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 180px; }
+.legend li {
+  display: grid;
+  grid-template-columns: 12px 1fr auto auto;
+  gap: 7px; align-items: center;
+  padding: 3px 0;
+  font-size: 15px;
+}
+.legend i { width: 12px; height: 12px; border-radius: 4px; }
+.lg-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lg-pct { min-width: 34px; text-align: right; }
+.lg-val { min-width: 74px; text-align: right; font-size: 14px; }
+
+/* ── 내역 ─────────────────────────────────────────────────── */
+.day-group + .day-group { margin-top: 14px; }
+.day-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 8px; margin-bottom: 4px;
+  background: var(--cream);
+  border-radius: var(--r-sm);
+  font-size: 14px; font-weight: 700; color: var(--ink-soft);
+}
+.day-head .plus  { color: var(--ok); }
+.day-head .minus { color: var(--dang); }
+
+.entry-list { list-style: none; margin: 0; padding: 0; }
+.entry {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 10px; align-items: center;
+  padding: 8px 6px;
+  border-bottom: 1.5px dashed var(--line);
+}
+.entry:last-child { border-bottom: none; }
+
+.e-emoji {
+  width: 34px; height: 34px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%; font-size: 17px;
+  border: 2px solid rgba(0, 0, 0, 0.05);
+}
+.e-body { min-width: 0; }
+.e-title {
+  font-size: 16px; font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.e-amt { font-size: 17px; white-space: nowrap; }
+.e-amt.income  { color: var(--ok); }
+.e-amt.expense { color: var(--dang); }
+.e-act { display: flex; gap: 0; }
+.e-act .btn { padding: 2px 5px; font-size: 13px; }
+
+/* ── 수입/지출 전환 ───────────────────────────────────────── */
+.kind-switch {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  margin-bottom: 14px;
+}
+.ks {
+  padding: 9px 0;
+  border: 2px solid var(--line-dp);
+  border-radius: 99px;
+  background: var(--paper);
+  font-weight: 700;
+  transition: background 0.12s, border-color 0.12s;
+}
+.ks.on.expense { background: #ffe6ea; border-color: #f3c2cc; color: #b8455c; }
+.ks.on.income  { background: var(--mint); border-color: var(--mint-dp); color: #3f8f68; }
+
+.amount-box { position: relative; }
+.amount-in {
+  font-size: 24px; font-weight: 700;
+  text-align: right;
+  padding-right: 38px;
+}
+.amount-box > span {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-soft); pointer-events: none;
+}
+
+@media (max-width: 860px) {
+  .money-top { grid-template-columns: 1fr; }
+  .balance-num { font-size: 36px; }
+  .entry { grid-template-columns: auto 1fr auto; row-gap: 4px; }
+  .e-act { grid-column: 3; }
+}

@@ -1,0 +1,65 @@
+/* ── 취미 아이콘 격자 ─────────────────────────────────────── */
+.hobby-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: 12px;
+}
+
+.hobby-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px;
+  aspect-ratio: 1 / 0.92;
+  padding: 10px 8px;
+  border: 2px solid rgba(0, 0, 0, 0.07);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  transition: transform 0.14s, box-shadow 0.14s, border-color 0.14s;
+}
+.hobby-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 0 var(--line-dp);
+}
+.hobby-box:active { transform: translateY(0); box-shadow: var(--shadow); }
+.hobby-box.on {
+  border-color: var(--ink-soft);
+  box-shadow: 0 5px 0 var(--line-dp);
+  transform: translateY(-3px);
+}
+
+.hb-icon { font-size: 34px; line-height: 1.1; }
+.hobby-box:hover .hb-icon { animation: wiggle 0.45s ease; }
+.hb-name { font-size: 17px; font-weight: 700; word-break: keep-all; text-align: center; }
+.hb-count { font-size: 13px; color: var(--ink-soft); }
+
+/* ── 상세 패널 ────────────────────────────────────────────── */
+.hobby-panel { margin-top: 14px; padding: 12px; border-width: 2px; }
+
+.hobby-panel-head {
+  margin: -12px -12px 14px;
+  padding: 10px 14px;
+  border-radius: 12px 12px 0 0;
+  font-size: 19px;
+}
+.hobby-panel-head .sub { display: flex; gap: 2px; }
+
+.hobby-memo {
+  background: var(--lemon);
+  border-color: var(--lemon-dp);
+  min-height: 190px;
+}
+.hobby-memo:focus { border-color: var(--lemon-dp); }
+
+.hobby-task-title {
+  flex: 1; min-width: 0;
+  padding: 3px 8px;
+  border-color: transparent;
+  background: transparent;
+}
+.hobby-task-title:hover { border-color: var(--line); background: var(--paper); }
+.hobby-task-title:focus { border-color: var(--pink-dp); background: var(--paper); }
+
+@media (max-width: 860px) {
+  .hobby-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+  .hb-icon { font-size: 28px; }
+  .hb-name { font-size: 15px; }
+}

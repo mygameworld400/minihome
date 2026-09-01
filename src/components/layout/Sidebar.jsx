@@ -7,6 +7,8 @@ export const MENU = [
   { to: '/',         emoji: '🏠', label: 'HOME',     desc: '미니홈피' },
   { to: '/work',     emoji: '💼', label: 'WORK',     desc: '업무보드' },
   { to: '/my',       emoji: '🌷', label: 'MY',       desc: '개인보드' },
+  { to: '/hobby',    emoji: '🎨', label: 'HOBBY',    desc: '취미보드' },
+  { to: '/money',    emoji: '💰', label: 'MONEY',    desc: '가계부' },
   { to: '/calendar', emoji: '📅', label: 'CALENDAR', desc: '일정' },
   { to: '/memo',     emoji: '📝', label: 'MEMO',     desc: '메모' },
   { to: '/stats',    emoji: '📊', label: 'STATS',    desc: '통계' },

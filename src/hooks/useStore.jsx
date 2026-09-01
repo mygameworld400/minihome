@@ -5,6 +5,8 @@ import * as P from '../services/personalService'
 import * as M from '../services/memoService'
 import * as C from '../services/calendarService'
 import * as Pr from '../services/profileService'
+import * as H from '../services/hobbyService'
+import * as L from '../services/ledgerService'
 
 /* ===========================================================
    앱 전체 데이터 저장소.
@@ -26,6 +28,10 @@ export function StoreProvider({ children }) {
   const [events, setEvents] = useState([])
   const [memos, setMemos] = useState([])
   const [diary, setDiary] = useState([])
+  const [hobbies, setHobbies] = useState([])
+  const [hobbyTasks, setHobbyTasks] = useState([])
+  const [ledgerCategories, setLedgerCategories] = useState([])
+  const [ledgerEntries, setLedgerEntries] = useState([])
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -34,7 +40,7 @@ export function StoreProvider({ children }) {
     if (!user) return
     setError(null)
     try {
-      const [pf, tr, pe, ta, ca, pt, ev, me, di] = await Promise.all([
+      const [pf, tr, pe, ta, ca, pt, ev, me, di, hb, ht, lc, le] = await Promise.all([
         Pr.getProfile(user.id),
         T.listTracks(),
         T.listPeople(),
@@ -44,10 +50,16 @@ export function StoreProvider({ children }) {
         C.listEvents(),
         M.listMemos(),
         M.listDiary(20),
+        H.listHobbies(),
+        H.listHobbyTasks(),
+        L.listLedgerCategories(),
+        L.listLedgerEntries(),
       ])
       setProfile(pf); setTracks(tr); setPeople(pe); setTasks(ta)
       setCategories(ca); setPersonalTasks(pt); setEvents(ev)
       setMemos(me); setDiary(di)
+      setHobbies(hb); setHobbyTasks(ht)
+      setLedgerCategories(lc); setLedgerEntries(le)
     } catch (e) {
       setError(e.message ?? String(e))
     } finally {
@@ -223,6 +235,71 @@ export function StoreProvider({ children }) {
     const r = await Pr.updateProfile(user.id, patch); setProfile(r); return r
   }
 
+  /* ── 취미보드 ───────────────────────────────────────────── */
+  const addHobby = async (p) => {
+    const r = await H.createHobby({ owner: user.id, ...p }); setHobbies((s) => [...s, r]); return r
+  }
+  const editHobby = async (id, p) => {
+    const r = await H.updateHobby(id, p); setHobbies((s) => s.map((x) => (x.id === id ? r : x))); return r
+  }
+  const removeHobby = async (id) => {
+    await H.deleteHobby(id)
+    setHobbies((s) => s.filter((x) => x.id !== id))
+    setHobbyTasks((s) => s.filter((t) => t.hobby_id !== id))
+  }
+
+  const addHobbyTask = async (p) => {
+    const r = await H.createHobbyTask({ owner: user.id, ...p })
+    setHobbyTasks((s) => [...s, r]); return r
+  }
+  const editHobbyTask = async (id, p) => {
+    const prev = hobbyTasks
+    return optimistic(
+      () => setHobbyTasks((s) => s.map((t) => (t.id === id ? { ...t, ...p } : t))),
+      () => setHobbyTasks(prev),
+      async () => {
+        const r = await H.updateHobbyTask(id, p)
+        setHobbyTasks((s) => s.map((t) => (t.id === id ? r : t)))
+        return r
+      },
+    )
+  }
+  const removeHobbyTask = async (id) => {
+    await H.deleteHobbyTask(id); setHobbyTasks((s) => s.filter((x) => x.id !== id))
+  }
+
+  /* ── 가계부 ─────────────────────────────────────────────── */
+  const addLedgerCategory = async (p) => {
+    const r = await L.createLedgerCategory({ owner: user.id, ...p })
+    setLedgerCategories((s) => [...s, r]); return r
+  }
+  const editLedgerCategory = async (id, p) => {
+    const r = await L.updateLedgerCategory(id, p)
+    setLedgerCategories((s) => s.map((x) => (x.id === id ? r : x))); return r
+  }
+  const removeLedgerCategory = async (id) => {
+    await L.deleteLedgerCategory(id)
+    setLedgerCategories((s) => s.filter((x) => x.id !== id))
+    setLedgerEntries((s) => s.map((e) => (e.category_id === id ? { ...e, category_id: null } : e)))
+  }
+
+  const addLedgerEntry = async (p) => {
+    const r = await L.createLedgerEntry({ owner: user.id, ...p })
+    setLedgerEntries((s) => [r, ...s]); return r
+  }
+  const editLedgerEntry = async (id, p) => {
+    const r = await L.updateLedgerEntry(id, p)
+    setLedgerEntries((s) => s.map((x) => (x.id === id ? r : x))); return r
+  }
+  const removeLedgerEntry = async (id) => {
+    const prev = ledgerEntries
+    return optimistic(
+      () => setLedgerEntries((s) => s.filter((x) => x.id !== id)),
+      () => setLedgerEntries(prev),
+      () => L.deleteLedgerEntry(id),
+    )
+  }
+
   const value = {
     loading, error, setError, reload,
     profile, saveProfile,
@@ -234,6 +311,10 @@ export function StoreProvider({ children }) {
     events, addEvent, editEvent, removeEvent,
     memos, addMemo, editMemo, removeMemo,
     diary, addDiary, removeDiary,
+    hobbies, addHobby, editHobby, removeHobby,
+    hobbyTasks, addHobbyTask, editHobbyTask, removeHobbyTask,
+    ledgerCategories, addLedgerCategory, editLedgerCategory, removeLedgerCategory,
+    ledgerEntries, addLedgerEntry, editLedgerEntry, removeLedgerEntry,
   }
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
