@@ -411,3 +411,18 @@ a { color: inherit; text-decoration: none; }
     width: 215px;
   }
 }
+/* ── 업무 카드 정리 ─────────────────────────────────────── */
+
+/* 메타 정보가 없으면 빈 영역 자체를 숨김 */
+.tc-meta:empty {
+  display: none;
+}
+
+/* 수정 / 삭제 버튼 가로 배치 */
+.tc-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
