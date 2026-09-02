@@ -1,0 +1,41 @@
+.wish-sum {
+  margin: -2px 0 8px;
+  padding: 4px 9px;
+  background: var(--cream);
+  border-radius: var(--r-sm);
+  color: var(--ink-soft);
+}
+.wish-sum b { color: var(--ink); }
+
+.wish-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+
+.wish {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 9px; align-items: center;
+  padding: 8px 10px;
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: var(--r-sm);
+  transition: border-color 0.12s, transform 0.12s;
+}
+.wish:hover { border-color: var(--pink-dp); transform: translateY(-1px); }
+
+.wish.is-got { background: #fbfff9; border-color: var(--mint-dp); }
+.wish.is-got .w-title { color: var(--ink-soft); text-decoration: line-through; }
+
+.w-body { min-width: 0; }
+.w-title { font-size: 16px; font-weight: 700; word-break: break-word; line-height: 1.35; }
+.w-title a { text-decoration: none; }
+.w-title a:hover { color: var(--info); text-decoration: underline; }
+.w-link { font-size: 12px; color: var(--ink-fade); }
+
+.w-meta { margin-top: 3px; gap: 6px; }
+.w-meta .badge { font-size: 12px; padding: 1px 7px; }
+
+.w-act { display: flex; gap: 0; }
+.w-act .btn { padding: 2px 5px; font-size: 13px; }
+
+@media (max-width: 860px) {
+  .page-head .chk-inline { font-size: 14px; }
+}

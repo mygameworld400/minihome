@@ -7,6 +7,7 @@ import * as C from '../services/calendarService'
 import * as Pr from '../services/profileService'
 import * as H from '../services/hobbyService'
 import * as L from '../services/ledgerService'
+import * as W from '../services/wishService'
 
 /* ===========================================================
    앱 전체 데이터 저장소.
@@ -33,6 +34,8 @@ export function StoreProvider({ children }) {
   const [ledgerCategories, setLedgerCategories] = useState([])
   const [ledgerEntries, setLedgerEntries] = useState([])
   const [doneLog, setDoneLog] = useState([])
+  const [wishCategories, setWishCategories] = useState([])
+  const [wishes, setWishes] = useState([])
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -41,7 +44,7 @@ export function StoreProvider({ children }) {
     if (!user) return
     setError(null)
     try {
-      const [pf, tr, pe, ta, ca, pt, ev, me, di, hb, ht, lc, le, dl] = await Promise.all([
+      const [pf, tr, pe, ta, ca, pt, ev, me, di, hb, ht, lc, le, dl, wc, wi] = await Promise.all([
         Pr.getProfile(user.id),
         T.listTracks(),
         T.listPeople(),
@@ -56,6 +59,8 @@ export function StoreProvider({ children }) {
         L.listLedgerCategories(),
         L.listLedgerEntries(),
         T.listDoneLog(60),
+        W.listWishCategories(),
+        W.listWishes(),
       ])
       setProfile(pf); setTracks(tr); setPeople(pe); setTasks(ta)
       setCategories(ca); setPersonalTasks(pt); setEvents(ev)
@@ -63,6 +68,7 @@ export function StoreProvider({ children }) {
       setHobbies(hb); setHobbyTasks(ht)
       setLedgerCategories(lc); setLedgerEntries(le)
       setDoneLog(dl)
+      setWishCategories(wc); setWishes(wi)
     } catch (e) {
       setError(e.message ?? String(e))
     } finally {
@@ -303,6 +309,40 @@ export function StoreProvider({ children }) {
     [user],
   )
 
+  /* ── 위시리스트 ─────────────────────────────────────────── */
+  const addWishCategory = async (p) => {
+    const r = await W.createWishCategory({ owner: user.id, ...p })
+    setWishCategories((s) => [...s, r]); return r
+  }
+  const editWishCategory = async (id, p) => {
+    const r = await W.updateWishCategory(id, p)
+    setWishCategories((s) => s.map((x) => (x.id === id ? r : x))); return r
+  }
+  const removeWishCategory = async (id) => {
+    await W.deleteWishCategory(id)
+    setWishCategories((s) => s.filter((x) => x.id !== id))
+    setWishes((s) => s.filter((w) => w.category_id !== id))
+  }
+
+  const addWish = async (p) => {
+    const r = await W.createWish({ owner: user.id, ...p }); setWishes((s) => [...s, r]); return r
+  }
+  const editWish = async (id, p) => {
+    const prev = wishes
+    return optimistic(
+      () => setWishes((s) => s.map((w) => (w.id === id ? { ...w, ...p } : w))),
+      () => setWishes(prev),
+      async () => {
+        const r = await W.updateWish(id, p)
+        setWishes((s) => s.map((w) => (w.id === id ? r : w)))
+        return r
+      },
+    )
+  }
+  const removeWish = async (id) => {
+    await W.deleteWish(id); setWishes((s) => s.filter((x) => x.id !== id))
+  }
+
   const saveProfile = async (patch) => {
     const r = await Pr.updateProfile(user.id, patch); setProfile(r); return r
   }
@@ -388,6 +428,8 @@ export function StoreProvider({ children }) {
     hobbyTasks, addHobbyTask, editHobbyTask, removeHobbyTask,
     ledgerCategories, addLedgerCategory, editLedgerCategory, removeLedgerCategory,
     ledgerEntries, addLedgerEntry, editLedgerEntry, removeLedgerEntry,
+    wishCategories, addWishCategory, editWishCategory, removeWishCategory,
+    wishes, addWish, editWish, removeWish,
   }
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

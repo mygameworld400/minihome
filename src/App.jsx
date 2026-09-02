@@ -8,6 +8,7 @@ import Work from './pages/Work'
 import Personal from './pages/Personal'
 import Hobby from './pages/Hobby'
 import Money from './pages/Money'
+import Wish from './pages/Wish'
 import Calendar from './pages/Calendar'
 import Memo from './pages/Memo'
 import Stats from './pages/Stats'
@@ -30,6 +31,7 @@ function Gate() {
           <Route path="/my" element={<Personal />} />
           <Route path="/hobby" element={<Hobby />} />
           <Route path="/money" element={<Money />} />
+          <Route path="/wish" element={<Wish />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/memo" element={<Memo />} />
           <Route path="/stats" element={<Stats />} />
