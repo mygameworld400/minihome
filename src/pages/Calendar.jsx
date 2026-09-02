@@ -9,7 +9,7 @@ const iso = (d) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
 export default function Calendar() {
-  const { events, tasks, tracks, addEvent, editEvent, removeEvent } = useStore()
+  const { events, tasks, addEvent, editEvent, removeEvent } = useStore()
   const [cur, setCur] = useState(() => { const d = new Date(); d.setDate(1); return d })
   const [pick, setPick] = useState(null)     // 클릭한 날짜 iso
   const [editing, setEditing] = useState(null)
@@ -18,8 +18,6 @@ export default function Calendar() {
   const y = cur.getFullYear()
   const m = cur.getMonth()
   const todayIso = iso(new Date())
-
-  const trackById = useMemo(() => new Map(tracks.map((t) => [t.id, t])), [tracks])
 
   /* 날짜별 항목: 일정 + 마감일 있는 업무 */
   const byDate = useMemo(() => {

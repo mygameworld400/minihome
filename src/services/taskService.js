@@ -98,12 +98,15 @@ export async function reorderTasks(rows) {
 
    업무 목록 자체가 곧 기본값이다. 별도 템플릿을 두지 않으므로
    추가·수정·삭제가 그대로 다음날 목록에 반영된다.
-   날짜가 바뀌면 ON 인 업무만 대기 상태로 되돌린다.
+
+   "다음날"의 기준은 시계가 아니라 우측 상단 ON/OFF 버튼이다.
+   OFF 로 껐다가 다시 ON 으로 켜면 하루가 새로 시작된다.
    =========================================================== */
 
-/** 오늘 아직 리셋 안 했으면 리셋한다. 되돌린 업무 수를 반환. */
-export async function runDailyReset() {
-  const { data, error } = await supabase.rpc('mh_daily_reset')
+/** 하루를 넘긴다. 완료·진행중인 업무를 전부 대기로 되돌리고
+    되돌린 개수를 반환한다. 보류(hold)는 건드리지 않는다. */
+export async function startNewDay() {
+  const { data, error } = await supabase.rpc('mh_start_new_day')
   if (error) throw error
   return data ?? 0
 }

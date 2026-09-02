@@ -1,22 +1,25 @@
 -- ===========================================================
 --  MINI HOME — 업무보드를 "매일 반복" 방식으로 전환
 --
---  · 업무마다 ON/OFF 를 둔다. ON 이면 매일 하는 업무.
---  · 날짜가 바뀌면 ON 인 업무는 다시 대기 상태로 돌아온다.
---  · 지금 업무 목록 자체가 곧 기본값이다. 추가·수정·삭제가
---    그대로 다음날 목록에 반영된다. (별도 템플릿 테이블 없음)
+--  · 업무 목록 자체가 곧 기본값이다. 별도 템플릿 테이블이 없으므로
+--    추가·수정·삭제가 그대로 다음날 목록에 반영된다.
+--  · 우측 상단 ON/OFF 버튼이 "다음날"의 기준이다.
+--      ON  = 업무 상태
+--      OFF = 업무 아닌 상태
+--    OFF 에서 다시 ON 으로 켜면 하루가 새로 시작되고,
+--    모든 업무가 대기 상태로 돌아온다.
 --  · 리셋하면 status 가 초기화되므로 완료 이력은 따로 남긴다.
 --
 --  SQL Editor 에 붙여넣고 Run. 여러 번 실행해도 안전하다.
 -- ===========================================================
 
--- ON/OFF — 기본은 ON (기존 업무 전부 매일 업무로 본다)
-alter table public.mh_tasks
-  add column if not exists is_daily boolean not null default true;
-
--- 마지막으로 리셋한 날짜 (사용자당 1개)
+-- 업무 상태 ON/OFF (사용자당 1개)
 alter table public.mh_profiles
-  add column if not exists last_daily_reset date;
+  add column if not exists work_mode boolean not null default true;
+
+-- 마지막으로 하루를 넘긴 시각
+alter table public.mh_profiles
+  add column if not exists last_day_start timestamptz;
 
 -- ── 완료 이력 ─────────────────────────────────────────────
 --  하루에 같은 업무를 여러 번 체크해도 한 줄만 남는다.
@@ -37,39 +40,32 @@ drop policy if exists "mh_task_done_log 본인만" on public.mh_task_done_log;
 create policy "mh_task_done_log 본인만" on public.mh_task_done_log
   for all using (owner = auth.uid()) with check (owner = auth.uid());
 
--- ── 일일 리셋 ─────────────────────────────────────────────
---  ON 인 업무 중 완료/진행중인 것을 대기로 되돌린다.
+-- ── 하루 넘기기 ───────────────────────────────────────────
+--  완료·진행중인 업무를 전부 대기로 되돌린다.
 --  보류(hold)는 일부러 멈춰둔 것이므로 건드리지 않는다.
---  이미 오늘 리셋했으면 아무것도 하지 않는다.
-create or replace function public.mh_daily_reset()
+create or replace function public.mh_start_new_day()
 returns int
 language plpgsql
 security invoker
 set search_path = public
 as $$
-declare
-  v_last date;
-  v_n int := 0;
+declare v_n int := 0;
 begin
-  select last_daily_reset into v_last
-    from public.mh_profiles where owner = auth.uid();
-
-  if v_last is not null and v_last >= current_date then
-    return 0;                      -- 오늘은 이미 처리함
-  end if;
-
   update public.mh_tasks
      set status = 'todo', completed_at = null
    where owner = auth.uid()
-     and is_daily
      and status in ('done', 'doing');
   get diagnostics v_n = row_count;
 
   update public.mh_profiles
-     set last_daily_reset = current_date
+     set work_mode = true,
+         last_day_start = now()
    where owner = auth.uid();
 
   return v_n;
 end $$;
 
-grant execute on function public.mh_daily_reset() to authenticated;
+grant execute on function public.mh_start_new_day() to authenticated;
+
+-- 예전 버전에서 만들었던 자동 리셋 함수는 더 이상 쓰지 않는다
+drop function if exists public.mh_daily_reset();

@@ -2,8 +2,6 @@ import { useMemo } from 'react'
 import { useStore } from '../hooks/useStore'
 import { STATUS } from '../services/taskService'
 
-const DAY = 86400000
-
 function Bar({ label, emoji, value, max, color, right }) {
   const w = max ? Math.round((value / max) * 100) : 0
   const blocks = Math.max(value ? 1 : 0, Math.round(w / 10))

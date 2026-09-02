@@ -41,10 +41,6 @@ export function StoreProvider({ children }) {
     if (!user) return
     setError(null)
     try {
-      /* 업무를 읽기 전에 먼저 날짜를 넘긴다.
-         ON 인 업무는 하루가 지나면 다시 대기 상태가 된다. */
-      await T.runDailyReset()
-
       const [pf, tr, pe, ta, ca, pt, ev, me, di, hb, ht, lc, le, dl] = await Promise.all([
         Pr.getProfile(user.id),
         T.listTracks(),
@@ -261,6 +257,34 @@ export function StoreProvider({ children }) {
     await M.deleteDiary(id); setDiary((s) => s.filter((x) => x.id !== id))
   }
 
+  /* ── 업무 모드 / 하루 넘기기 ────────────────────────────
+     "다음날"의 기준은 시계가 아니라 우측 상단 ON/OFF 버튼이다.
+     OFF 였다가 ON 으로 켜면 하루가 새로 시작되고 업무가 전부
+     대기 상태로 돌아온다. */
+  const workMode = profile?.work_mode !== false
+
+  const setWorkMode = useCallback(
+    async (on) => {
+      if (!on) {
+        const r = await Pr.updateProfile(user.id, { work_mode: false })
+        setProfile(r)
+        return 0
+      }
+      const n = await T.startNewDay()
+      setTasks((s) =>
+        s.map((t) =>
+          t.status === 'done' || t.status === 'doing'
+            ? { ...t, status: 'todo', completed_at: null }
+            : t,
+        ),
+      )
+      const r = await Pr.getProfile(user.id)
+      setProfile(r)
+      return n
+    },
+    [user],
+  )
+
   const saveProfile = async (patch) => {
     const r = await Pr.updateProfile(user.id, patch); setProfile(r); return r
   }
@@ -332,7 +356,7 @@ export function StoreProvider({ children }) {
 
   const value = {
     loading, error, setError, reload,
-    profile, saveProfile,
+    profile, saveProfile, workMode, setWorkMode,
     tracks, addTrack, editTrack, removeTrack,
     people, addPerson, editPerson, removePerson,
     tasks, byId, addTask, editTask, removeTask, toggleTask, moveTask,

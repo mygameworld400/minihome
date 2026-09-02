@@ -24,13 +24,11 @@ export default function Home() {
 
   const trackById = useMemo(() => new Map(tracks.map((t) => [t.id, t])), [tracks])
 
-  /* 오늘의 업무 = ON 인 업무만. 매일 대기로 초기화된다 */
-  const daily = tasks.filter((t) => t.is_daily !== false)
-  const done = daily.filter((t) => t.status === 'done')
-  const open = daily.filter((t) => t.status !== 'done' && !isLocked(t, byId))
+  const done = tasks.filter((t) => t.status === 'done')
+  const open = tasks.filter((t) => t.status !== 'done' && !isLocked(t, byId))
   const todayList = open.slice(0, 5)
 
-  const total = daily.length
+  const total = tasks.length
   const pct = total ? Math.round((done.length / total) * 100) : 0
   const filled = Math.round(pct / 10)
 
@@ -134,8 +132,8 @@ export default function Home() {
           </div>
           <div className="grid grid-3" style={{ gap: 8 }}>
             <div className="stat-chip"><b>{open.length}</b><span>남은 일</span></div>
-            <div className="stat-chip"><b>{daily.filter((t) => t.status === 'doing').length}</b><span>진행중</span></div>
-            <div className="stat-chip"><b>{daily.filter((t) => isLocked(t, byId)).length}</b><span>잠김</span></div>
+            <div className="stat-chip"><b>{tasks.filter((t) => t.status === 'doing').length}</b><span>진행중</span></div>
+            <div className="stat-chip"><b>{tasks.filter((t) => isLocked(t, byId)).length}</b><span>잠김</span></div>
           </div>
         </section>
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar, { MobileNav } from './Sidebar'
+import DaySwitch from './DaySwitch'
 import { useStore } from '../../hooks/useStore'
 
 const FONT_OPTIONS = [
@@ -22,7 +23,7 @@ const FONT_OPTIONS = [
 ]
 
 export default function Layout() {
-  const { loading, error, setError } = useStore()
+  const { loading, error, setError, workMode } = useStore()
 
   const [fontMenuOpen, setFontMenuOpen] = useState(false)
 
@@ -52,9 +53,11 @@ export default function Layout() {
       <div className="shell">
         <Sidebar />
 
-        <main className="main">
+        <main className={'main' + (workMode ? '' : ' work-off')}>
           {/* 우측 상단 빠른 설정 */}
           <div className="quick-settings">
+            <DaySwitch />
+
             <button
               className="quick-settings-btn"
               onClick={() => setFontMenuOpen((prev) => !prev)}
