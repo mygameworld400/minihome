@@ -185,6 +185,24 @@ export function StoreProvider({ children }) {
   const editTrack = async (id, p) => {
     const r = await T.updateTrack(id, p); setTracks((s) => s.map((x) => (x.id === id ? r : x))); return r
   }
+  /* 드래그로 트랙 순서를 바꾼다. "새로운 제품 기획"(sort_order 99)은
+     늘 마지막에 두기로 했으므로 순서 재계산에서 빼둔다. */
+  const moveTrack = async (ordered) => {
+    const rows = ordered.map((t, i) => ({ id: t.id, sort_order: i + 1 }))
+    const prev = tracks
+    const m = new Map(rows.map((r) => [r.id, r.sort_order]))
+    setTracks((s) =>
+      [...s].map((t) => (m.has(t.id) ? { ...t, sort_order: m.get(t.id) } : t))
+        .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id),
+    )
+    try {
+      await T.reorderTracks(rows)
+    } catch (e) {
+      setError(e.message ?? String(e))
+      setTracks(prev)
+    }
+  }
+
   const removeTrack = async (id) => {
     await T.deleteTrack(id)
     setTracks((s) => s.filter((x) => x.id !== id))
@@ -357,7 +375,7 @@ export function StoreProvider({ children }) {
   const value = {
     loading, error, setError, reload,
     profile, saveProfile, workMode, setWorkMode,
-    tracks, addTrack, editTrack, removeTrack,
+    tracks, addTrack, editTrack, removeTrack, moveTrack,
     people, addPerson, editPerson, removePerson,
     tasks, byId, addTask, editTask, removeTask, toggleTask, moveTask,
     doneLog,

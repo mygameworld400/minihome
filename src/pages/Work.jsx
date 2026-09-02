@@ -3,6 +3,7 @@ import { useStore } from '../hooks/useStore'
 import { STATUS, isLocked } from '../services/taskService'
 import TaskCard from '../components/work/TaskCard'
 import TaskModal from '../components/work/TaskModal'
+import TrackModal from '../components/work/TrackModal'
 import { Confirm } from '../components/common/Modal'
 import './work.css'
 
@@ -10,6 +11,7 @@ export default function Work() {
   const {
     tracks, people, tasks, byId,
     addTask, toggleTask, removeTask, moveTask,
+    removeTrack, moveTrack,
   } = useStore()
 
   const [q, setQ] = useState('')
@@ -21,8 +23,10 @@ export default function Work() {
   const [editing, setEditing] = useState(null)   // task | 'new'
   const [newIn, setNewIn] = useState(null)       // 빠른 추가 중인 트랙 id
   const [confirm, setConfirm] = useState(null)
+  const [trackModal, setTrackModal] = useState(null)   // 'new' | track
 
   const dragId = useRef(null)
+  const dragTrackId = useRef(null)
 
   const personById = useMemo(() => new Map(people.map((p) => [p.id, p])), [people])
 
@@ -65,6 +69,20 @@ export default function Work() {
     input.focus()
   }
 
+  /* ── 트랙 순서 바꾸기 ───────────────────────────────────── */
+  function onTrackDrop(targetId) {
+    const from = dragTrackId.current
+    dragTrackId.current = null
+    if (!from || from === targetId) return
+    const arr = [...tracks]
+    const fi = arr.findIndex((t) => t.id === from)
+    const ti = arr.findIndex((t) => t.id === targetId)
+    if (fi < 0 || ti < 0) return
+    const [moved] = arr.splice(fi, 1)
+    arr.splice(ti, 0, moved)
+    moveTrack(arr)
+  }
+
   /* ── 드래그 정렬 (같은 트랙 안에서만) ───────────────────── */
   function onDrop(group, targetId) {
     const from = dragId.current
@@ -85,6 +103,7 @@ export default function Work() {
       <div className="page-head">
         <h1>💼 업무보드</h1>
         <span className="spacer tiny muted">{doneCount} / {shownCount} 완료</span>
+        <button className="btn btn-sm" onClick={() => setTrackModal('new')}>+ 트랙</button>
         <button className="btn btn-primary btn-sm" onClick={() => setEditing('new')}>+ 새 업무</button>
       </div>
 
@@ -132,10 +151,26 @@ export default function Work() {
               key={key}
               style={tr ? { borderColor: tr.color } : undefined}
             >
-              <h2 className="card-title track-head" style={tr ? { background: tr.color } : undefined}>
+              <h2
+                className={'card-title track-head' + (tr ? ' movable' : '')}
+                style={tr ? { background: tr.color } : undefined}
+                draggable={!!tr}
+                onDragStart={() => { if (tr) dragTrackId.current = tr.id }}
+                onDragOver={(e) => { if (tr) e.preventDefault() }}
+                onDrop={() => tr && onTrackDrop(tr.id)}
+              >
                 <span>{tr?.emoji ?? '📂'}</span>
                 <span>{tr?.name ?? '트랙 없음'}</span>
-                <span className="sub">{dn}/{g.items.length}</span>
+                <span className="sub">
+                  {dn}/{g.items.length}
+                  {tr && (
+                    <button
+                      className="btn btn-ghost btn-sm track-edit"
+                      onClick={() => setTrackModal(tr)}
+                      title="트랙 수정"
+                    >✏️</button>
+                  )}
+                </span>
               </h2>
 
               {tr?.description && <p className="tiny muted track-desc">{tr.description}</p>}
@@ -185,6 +220,17 @@ export default function Work() {
         })}
       </div>
 
+      {trackModal && (
+        <TrackModal
+          track={trackModal === 'new' ? null : trackModal}
+          onClose={() => setTrackModal(null)}
+          onDelete={() => {
+            setConfirm({ kind: 'track', row: trackModal })
+            setTrackModal(null)
+          }}
+        />
+      )}
+
       {editing && (
         <TaskModal
           task={editing === 'new' ? null : editing}
@@ -194,10 +240,22 @@ export default function Work() {
 
       {confirm && (
         <Confirm
-          message={`「${confirm.title}」 업무를 삭제할까요?`}
-          detail="되돌릴 수 없어요."
+          message={
+            confirm.kind === 'track'
+              ? `「${confirm.row.name}」 트랙을 삭제할까요?`
+              : `「${confirm.title}」 업무를 삭제할까요?`
+          }
+          detail={
+            confirm.kind === 'track'
+              ? '안의 업무는 지워지지 않고 「트랙 없음」으로 옮겨져요.'
+              : '되돌릴 수 없어요.'
+          }
           onCancel={() => setConfirm(null)}
-          onOk={async () => { await removeTask(confirm.id); setConfirm(null) }}
+          onOk={async () => {
+            if (confirm.kind === 'track') await removeTrack(confirm.row.id)
+            else await removeTask(confirm.id)
+            setConfirm(null)
+          }}
         />
       )}
     </>

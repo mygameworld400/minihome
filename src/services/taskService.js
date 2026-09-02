@@ -41,6 +41,15 @@ export async function deleteTrack(id) {
   unwrap(await supabase.from('mh_tracks').delete().eq('id', id))
 }
 
+/** 드래그로 바뀐 트랙 순서를 한 번에 저장한다. */
+export async function reorderTracks(rows) {
+  await Promise.all(
+    rows.map((r) =>
+      supabase.from('mh_tracks').update({ sort_order: r.sort_order }).eq('id', r.id),
+    ),
+  )
+}
+
 /* ── 담당자 ──────────────────────────────────────────────── */
 export async function listPeople() {
   return unwrap(

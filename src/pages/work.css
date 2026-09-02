@@ -91,3 +91,30 @@
   .board { grid-template-columns: 1fr; }
   .filters .select { flex: 1 1 46%; }
 }
+
+/* ── 트랙 관리 ────────────────────────────────────────────── */
+.track-head.movable { cursor: grab; }
+.track-head.movable:active { cursor: grabbing; }
+.track-head .sub { display: flex; align-items: center; gap: 2px; }
+
+.track-edit {
+  padding: 1px 5px;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.track:hover .track-edit { opacity: 1; }
+.track-edit:hover { background: rgba(255, 255, 255, 0.7); }
+
+/* 모달 안 미리보기 */
+.track-preview {
+  margin-top: 12px;
+  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  border: 2px solid rgba(0, 0, 0, 0.06);
+  font-size: 17px;
+}
+
+@media (max-width: 860px) {
+  .track-edit { opacity: 1; }
+}
