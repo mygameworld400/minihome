@@ -72,8 +72,51 @@
   font-size: 13px; color: #7a6a3a; word-break: break-word;
 }
 
-.tc-actions { display: flex; flex-direction: column; gap: 2px; }
+.tc-actions {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+}
 .tc-actions .btn { padding: 2px 6px; font-size: 13px; line-height: 1.3; }
+
+/* ── ON/OFF 스위치 ────────────────────────────────────────── */
+.daily-sw {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 7px 2px 4px;
+  border: 2px solid var(--line-dp);
+  border-radius: 99px;
+  background: var(--cream);
+  transition: background 0.14s, border-color 0.14s;
+}
+.daily-sw i {
+  width: 26px; height: 15px; flex: none;
+  border-radius: 99px;
+  background: var(--line-dp);
+  position: relative;
+  transition: background 0.16s;
+}
+.daily-sw i::after {
+  content: '';
+  position: absolute; top: 2px; left: 2px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: transform 0.16s;
+}
+.daily-sw em {
+  font-family: var(--font-pix); font-style: normal;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.daily-sw.on { background: var(--mint); border-color: var(--mint-dp); }
+.daily-sw.on i { background: var(--ok); }
+.daily-sw.on i::after { transform: translateX(11px); }
+.daily-sw.on em { color: #3f8f68; }
+
+/* OFF 인 업무는 흐리게 */
+.task-card.is-off { opacity: 0.5; background: #fbfafc; }
+.task-card.is-off .tc-title { text-decoration: none; color: var(--ink-soft); }
+.task-card.is-off .daily-sw { opacity: 1; }
 
 /* ── 빠른 추가 ────────────────────────────────────────────── */
 .quick { margin-top: 8px; }

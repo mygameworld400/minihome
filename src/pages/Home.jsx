@@ -14,7 +14,7 @@ function todayStr() {
 export default function Home() {
   const {
     profile, saveProfile, tasks, byId, tracks,
-    diary, addDiary, removeDiary, toggleTask,
+    diary, addDiary, removeDiary, toggleTask, doneLog,
   } = useStore()
 
   const [note, setNote] = useState('')
@@ -24,17 +24,18 @@ export default function Home() {
 
   const trackById = useMemo(() => new Map(tracks.map((t) => [t.id, t])), [tracks])
 
-  const done = tasks.filter((t) => t.status === 'done')
-  const open = tasks.filter((t) => t.status !== 'done' && !isLocked(t, byId))
+  /* 오늘의 업무 = ON 인 업무만. 매일 대기로 초기화된다 */
+  const daily = tasks.filter((t) => t.is_daily !== false)
+  const done = daily.filter((t) => t.status === 'done')
+  const open = daily.filter((t) => t.status !== 'done' && !isLocked(t, byId))
   const todayList = open.slice(0, 5)
 
-  const total = tasks.length
+  const total = daily.length
   const pct = total ? Math.round((done.length / total) * 100) : 0
   const filled = Math.round(pct / 10)
 
-  const recent = [...done]
-    .sort((a, b) => new Date(b.completed_at ?? 0) - new Date(a.completed_at ?? 0))
-    .slice(0, 5)
+  /* status 는 매일 초기화되므로 최근 완료는 로그에서 읽는다 */
+  const recent = doneLog.slice(0, 6)
 
   async function postDiary(e) {
     e.preventDefault()
@@ -104,7 +105,7 @@ export default function Home() {
                     onClick={() => toggleTask(t)}
                     title="완료 처리"
                   >
-                    {t.status === 'done' ? '✓' : STATUS[t.status].mark}
+                    {t.status === 'done' ? '✓' : t.status === 'todo' ? '' : STATUS[t.status].mark}
                   </button>
                   <span className="ttl">{t.title}</span>
                   {t.track_id && (
@@ -133,8 +134,8 @@ export default function Home() {
           </div>
           <div className="grid grid-3" style={{ gap: 8 }}>
             <div className="stat-chip"><b>{open.length}</b><span>남은 일</span></div>
-            <div className="stat-chip"><b>{tasks.filter((t) => t.status === 'doing').length}</b><span>진행중</span></div>
-            <div className="stat-chip"><b>{tasks.filter((t) => isLocked(t, byId)).length}</b><span>잠김</span></div>
+            <div className="stat-chip"><b>{daily.filter((t) => t.status === 'doing').length}</b><span>진행중</span></div>
+            <div className="stat-chip"><b>{daily.filter((t) => isLocked(t, byId)).length}</b><span>잠김</span></div>
           </div>
         </section>
       </div>
@@ -182,15 +183,13 @@ export default function Home() {
             <div className="empty">아직 완료한 업무가 없어요</div>
           ) : (
             <ul className="mini-list done-list">
-              {recent.map((t) => (
-                <li key={t.id}>
+              {recent.map((r, i) => (
+                <li key={`${r.task_id}-${r.done_date}-${i}`}>
                   <span className="chk on">✓</span>
-                  <span className="ttl">{t.title}</span>
-                  {t.completed_at && (
-                    <span className="tiny muted">
-                      {new Date(t.completed_at).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' })}
-                    </span>
-                  )}
+                  <span className="ttl">{r.title}</span>
+                  <span className="tiny muted">
+                    {r.done_date.slice(5).replace('-', '/')}
+                  </span>
                 </li>
               ))}
             </ul>

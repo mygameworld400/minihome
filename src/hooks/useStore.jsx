@@ -32,6 +32,7 @@ export function StoreProvider({ children }) {
   const [hobbyTasks, setHobbyTasks] = useState([])
   const [ledgerCategories, setLedgerCategories] = useState([])
   const [ledgerEntries, setLedgerEntries] = useState([])
+  const [doneLog, setDoneLog] = useState([])
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -40,7 +41,11 @@ export function StoreProvider({ children }) {
     if (!user) return
     setError(null)
     try {
-      const [pf, tr, pe, ta, ca, pt, ev, me, di, hb, ht, lc, le] = await Promise.all([
+      /* 업무를 읽기 전에 먼저 날짜를 넘긴다.
+         ON 인 업무는 하루가 지나면 다시 대기 상태가 된다. */
+      await T.runDailyReset()
+
+      const [pf, tr, pe, ta, ca, pt, ev, me, di, hb, ht, lc, le, dl] = await Promise.all([
         Pr.getProfile(user.id),
         T.listTracks(),
         T.listPeople(),
@@ -54,12 +59,14 @@ export function StoreProvider({ children }) {
         H.listHobbyTasks(),
         L.listLedgerCategories(),
         L.listLedgerEntries(),
+        T.listDoneLog(60),
       ])
       setProfile(pf); setTracks(tr); setPeople(pe); setTasks(ta)
       setCategories(ca); setPersonalTasks(pt); setEvents(ev)
       setMemos(me); setDiary(di)
       setHobbies(hb); setHobbyTasks(ht)
       setLedgerCategories(lc); setLedgerEntries(le)
+      setDoneLog(dl)
     } catch (e) {
       setError(e.message ?? String(e))
     } finally {
@@ -131,8 +138,31 @@ export function StoreProvider({ children }) {
     [tasks, optimistic],
   )
 
+  /* 체크할 때 완료 이력도 함께 남긴다.
+     status 는 매일 초기화되므로 통계는 이 로그를 읽는다. */
   const toggleTask = useCallback(
-    (task) => editTask(task.id, { status: task.status === 'done' ? 'todo' : 'done' }),
+    async (task) => {
+      const nowDone = task.status !== 'done'
+      const today = T.todayISO()
+
+      if (nowDone) {
+        setDoneLog((s) =>
+          s.some((r) => r.task_id === task.id && r.done_date === today)
+            ? s
+            : [{ task_id: task.id, done_date: today, title: task.title, track_id: task.track_id }, ...s],
+        )
+      } else {
+        setDoneLog((s) => s.filter((r) => !(r.task_id === task.id && r.done_date === today)))
+      }
+
+      await editTask(task.id, { status: nowDone ? 'done' : 'todo' })
+      try {
+        if (nowDone) await T.logDone(task)
+        else await T.unlogDone(task.id)
+      } catch (e) {
+        setError(e.message ?? String(e))
+      }
+    },
     [editTask],
   )
 
@@ -306,6 +336,7 @@ export function StoreProvider({ children }) {
     tracks, addTrack, editTrack, removeTrack,
     people, addPerson, editPerson, removePerson,
     tasks, byId, addTask, editTask, removeTask, toggleTask, moveTask,
+    doneLog,
     categories, addCategory, editCategory, removeCategory,
     personalTasks, addPersonalTask, editPersonalTask, removePersonalTask,
     events, addEvent, editEvent, removeEvent,

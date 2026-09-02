@@ -94,6 +94,71 @@ export async function reorderTasks(rows) {
 }
 
 /* ===========================================================
+   매일 반복 업무
+
+   업무 목록 자체가 곧 기본값이다. 별도 템플릿을 두지 않으므로
+   추가·수정·삭제가 그대로 다음날 목록에 반영된다.
+   날짜가 바뀌면 ON 인 업무만 대기 상태로 되돌린다.
+   =========================================================== */
+
+/** 오늘 아직 리셋 안 했으면 리셋한다. 되돌린 업무 수를 반환. */
+export async function runDailyReset() {
+  const { data, error } = await supabase.rpc('mh_daily_reset')
+  if (error) throw error
+  return data ?? 0
+}
+
+/** 로컬 기준 오늘 날짜 (YYYY-MM-DD) */
+export function todayISO() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/* ── 완료 이력 ───────────────────────────────────────────── */
+/* status 는 매일 초기화되므로 통계는 이 로그에서 읽는다. */
+
+export async function listDoneLog(days = 60) {
+  const from = new Date()
+  from.setDate(from.getDate() - days)
+  const iso = `${from.getFullYear()}-${String(from.getMonth() + 1).padStart(2, '0')}-${String(from.getDate()).padStart(2, '0')}`
+  return unwrap(
+    await supabase
+      .from('mh_task_done_log')
+      .select('*')
+      .gte('done_date', iso)
+      .order('done_date', { ascending: false }),
+  )
+}
+
+export async function logDone(task) {
+  return unwrap(
+    await supabase
+      .from('mh_task_done_log')
+      .upsert(
+        {
+          task_id: task.id,
+          done_date: todayISO(),
+          title: task.title,
+          track_id: task.track_id,
+        },
+        { onConflict: 'owner,task_id,done_date' },
+      )
+      .select()
+      .single(),
+  )
+}
+
+export async function unlogDone(taskId) {
+  unwrap(
+    await supabase
+      .from('mh_task_done_log')
+      .delete()
+      .eq('task_id', taskId)
+      .eq('done_date', todayISO()),
+  )
+}
+
+/* ===========================================================
    선행 업무 — 잠금 판정은 클라이언트에서 계산한다.
    predecessor 가 있고 그게 done 이 아니면 잠긴 것으로 본다.
    =========================================================== */

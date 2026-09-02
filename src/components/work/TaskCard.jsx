@@ -15,28 +15,37 @@ function dueInfo(due) {
 }
 
 export default function TaskCard({
-  task, locked, predecessor, person, onToggle, onEdit, onDelete, dragProps,
+  task, locked, predecessor, person, onToggle, onEdit, onDelete, onToggleDaily, dragProps,
 }) {
   const st = STATUS[task.status]
   const pr = PRIORITY[task.priority]
   const due = dueInfo(task.due_date)
+  const off = task.is_daily === false
+
+  /* 대기 상태에서는 네모 안을 비워둔다 (동그라미 없음) */
+  const mark =
+    task.status === 'done' ? '✓'
+      : locked ? '🔒'
+      : task.status === 'todo' ? ''
+      : st.mark
 
   return (
     <li
       className={
         'task-card pop' +
         (task.status === 'done' ? ' is-done' : '') +
-        (locked ? ' is-locked' : '')
+        (locked ? ' is-locked' : '') +
+        (off ? ' is-off' : '')
       }
       {...dragProps}
     >
       <button
         className={'chk' + (task.status === 'done' ? ' on' : '')}
         onClick={() => onToggle(task)}
-        disabled={locked}
-        title={locked ? '선행 업무가 끝나야 해요' : '완료 처리'}
+        disabled={locked || off}
+        title={locked ? '선행 업무가 끝나야 해요' : off ? '오늘 업무가 아니에요' : '완료 처리'}
       >
-        {task.status === 'done' ? '✓' : locked ? '🔒' : st.mark}
+        {mark}
       </button>
 
       <div className="tc-body">
@@ -67,8 +76,20 @@ export default function TaskCard({
       </div>
 
       <div className="tc-actions">
-        <button className="btn btn-ghost btn-sm" onClick={() => onEdit(task)} title="수정">✏️</button>
-        <button className="btn btn-ghost btn-sm" onClick={() => onDelete(task)} title="삭제">🗑️</button>
+        {/* ON = 매일 하는 업무 (날짜 바뀌면 대기로 돌아옴) / OFF = 오늘은 업무 아님 */}
+        <button
+          className={'daily-sw' + (off ? '' : ' on')}
+          onClick={() => onToggleDaily(task)}
+          title={off ? 'OFF — 업무 아닌 상태' : 'ON — 매일 하는 업무'}
+          aria-pressed={!off}
+        >
+          <i />
+          <em>{off ? 'OFF' : 'ON'}</em>
+        </button>
+        <div className="row" style={{ gap: 0 }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => onEdit(task)} title="수정">✏️</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => onDelete(task)} title="삭제">🗑️</button>
+        </div>
       </div>
     </li>
   )

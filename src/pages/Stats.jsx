@@ -25,18 +25,22 @@ function Bar({ label, emoji, value, max, color, right }) {
 }
 
 export default function Stats() {
-  const { tasks, tracks, people, personalTasks } = useStore()
+  const { tasks, tracks, people, personalTasks, doneLog } = useStore()
 
   const s = useMemo(() => {
     const now = new Date()
     const startToday = new Date(now); startToday.setHours(0, 0, 0, 0)
     const startWeek = new Date(startToday); startWeek.setDate(startToday.getDate() - startToday.getDay())
 
-    const done = tasks.filter((t) => t.status === 'done')
-    const doneAt = (t) => (t.completed_at ? new Date(t.completed_at) : null)
+    /* 업무 status 는 매일 초기화되므로 완료 집계는 로그에서 읽는다 */
+    const iso = (d) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const todayIso = iso(startToday)
+    const weekIso = iso(startWeek)
 
-    const today = done.filter((t) => doneAt(t) >= startToday).length
-    const week = done.filter((t) => doneAt(t) >= startWeek).length
+    const today = doneLog.filter((r) => r.done_date === todayIso).length
+    const week = doneLog.filter((r) => r.done_date >= weekIso).length
+    const done = tasks.filter((t) => t.status === 'done')
 
     const byTrack = tracks.map((tr) => {
       const items = tasks.filter((t) => t.track_id === tr.id)
@@ -64,10 +68,10 @@ export default function Stats() {
     /* 최근 7일 완료 추이 */
     const trend = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(startToday); d.setDate(startToday.getDate() - (6 - i))
-      const next = new Date(d.getTime() + DAY)
+      const key = iso(d)
       return {
         label: `${d.getMonth() + 1}/${d.getDate()}`,
-        count: done.filter((t) => { const c = doneAt(t); return c >= d && c < next }).length,
+        count: doneLog.filter((r) => r.done_date === key).length,
       }
     })
 
@@ -77,7 +81,7 @@ export default function Stats() {
       pDone: personalTasks.filter((t) => t.status === 'done').length,
       pTotal: personalTasks.length,
     }
-  }, [tasks, tracks, people, personalTasks])
+  }, [tasks, tracks, people, personalTasks, doneLog])
 
   const pct = s.total ? Math.round((s.done / s.total) * 100) : 0
   const maxTrack = Math.max(1, ...s.byTrack.map((x) => x.total))

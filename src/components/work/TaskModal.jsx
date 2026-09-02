@@ -18,6 +18,7 @@ export default function TaskModal({ task, defaultTrackId, onClose }) {
     predecessor_id: task?.predecessor_id ?? '',
     description: task?.description ?? '',
     memo: task?.memo ?? '',
+    is_daily: task?.is_daily ?? true,
   })
   const [busy, setBusy] = useState(false)
 
@@ -42,6 +43,7 @@ export default function TaskModal({ task, defaultTrackId, onClose }) {
       predecessor_id: f.predecessor_id || null,
       description: f.description,
       memo: f.memo,
+      is_daily: f.is_daily,
     }
     try {
       if (isNew) await addTask(patch)
@@ -106,6 +108,18 @@ export default function TaskModal({ task, defaultTrackId, onClose }) {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="field">
+          <label>매일 하는 업무</label>
+          <label className="chk-inline" style={{ padding: '4px 0' }}>
+            <input
+              type="checkbox"
+              checked={f.is_daily}
+              onChange={(e) => setF((s) => ({ ...s, is_daily: e.target.checked }))}
+            />
+            ON — 날짜가 바뀌면 다시 대기 상태로 돌아옵니다
+          </label>
         </div>
 
         <div className="field">

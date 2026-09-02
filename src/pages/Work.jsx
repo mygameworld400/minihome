@@ -9,7 +9,7 @@ import './work.css'
 export default function Work() {
   const {
     tracks, people, tasks, byId,
-    addTask, toggleTask, removeTask, moveTask,
+    addTask, editTask, toggleTask, removeTask, moveTask,
   } = useStore()
 
   const [q, setQ] = useState('')
@@ -50,8 +50,10 @@ export default function Work() {
     return g
   }, [tracks, filtered])
 
-  const shownCount = filtered.length
-  const doneCount = filtered.filter((t) => t.status === 'done').length
+  /* 오늘 해야 하는 것 = ON 인 업무만 센다 */
+  const activeTasks = filtered.filter((t) => t.is_daily !== false)
+  const shownCount = activeTasks.length
+  const doneCount = activeTasks.filter((t) => t.status === 'done').length
 
   async function quickAdd(e, trackId) {
     e.preventDefault()
@@ -60,7 +62,7 @@ export default function Work() {
     if (!title) return
     const siblings = tasks.filter((t) => t.track_id === trackId)
     const next = siblings.length ? Math.max(...siblings.map((t) => t.sort_order)) + 1 : 1
-    await addTask({ title, track_id: trackId, sort_order: next })
+    await addTask({ title, track_id: trackId, sort_order: next, is_daily: true })
     input.value = ''
     input.focus()
   }
@@ -125,7 +127,8 @@ export default function Work() {
         {groups.map((g) => {
           const tr = g.track
           const key = tr?.id ?? 'none'
-          const dn = g.items.filter((t) => t.status === 'done').length
+          const on = g.items.filter((t) => t.is_daily !== false)
+          const dn = on.filter((t) => t.status === 'done').length
           return (
             <section
               className="card track"
@@ -135,7 +138,7 @@ export default function Work() {
               <h2 className="card-title track-head" style={tr ? { background: tr.color } : undefined}>
                 <span>{tr?.emoji ?? '📂'}</span>
                 <span>{tr?.name ?? '트랙 없음'}</span>
-                <span className="sub">{dn}/{g.items.length}</span>
+                <span className="sub">{dn}/{on.length}</span>
               </h2>
 
               {tr?.description && <p className="tiny muted track-desc">{tr.description}</p>}
@@ -154,6 +157,7 @@ export default function Work() {
                       onToggle={toggleTask}
                       onEdit={setEditing}
                       onDelete={(task) => setConfirm(task)}
+                      onToggleDaily={(t) => editTask(t.id, { is_daily: t.is_daily === false })}
                       dragProps={{
                         draggable: true,
                         onDragStart: () => { dragId.current = t.id },
